@@ -109,7 +109,7 @@ func (state *State) GetFemales() ([]models.User, error) {
 	for rows.Next() {
 		var user models.User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Community, &user.DOB, &user.MaritalStatus, &user.Country, &user.District, &user.Eduction, &user.Religion, &user.Profession); err != nil {
-			return nil,  err
+			return nil, err
 		}
 		results = append(results, user)
 	}
