@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/golang-jwt/jwt"
 )
 
@@ -60,34 +58,6 @@ type Config struct {
 
 type JWTToken struct {
 	jwt.StandardClaims
-	AdminID int64  `json:"adminId"`
-	Mobile  string `json:"mobile"`
-}
-
-type Filters struct {
-	ID              int64     `json:"id"`
-	HigherAge       int64     `json:"higher_age"`
-	LowerAge        int64     `json:"lower_age"`
-	Gender          *[]string `json:"gender"`
-	MaritalStatus   *[]string `json:"marital_status"`
-	Profession      *[]string `json:"profession"`
-	Cast            *[]string `json:"cast"`
-	Country         *[]string `json:"country"`
-	ResidingCountry *[]string `json:"residing_country"`
-	District        *[]string `json:"district"`
-	ResidentStatus  *[]string `json:"resident_status"`
-	Citizenship     *[]string `json:"citizenship"`
-	UserID          int64     `json:"user_id"`
-	Religion        *[]string `json:"religion"`
-	Education       *[]string `json:"education"`
-	Siblings        *[]string `json:"siblings"`
-}
-
-type Message struct {
-	Type        string    `json:"type,required"`
-	ID          string    `json:"id"`
-	Data        string    `json:"data,omitempty"`
-	RecipientID int64     `json:"recipient_id,omitempty"`
-	SenderID    int64     `json:"sender_id,omitempty"`
-	SentAt      time.Time `json:"sent_at,omitempty"`
+	UserID int64  `json:"userId"`
+	Email  string `json:"email"`
 }
