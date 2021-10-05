@@ -1,7 +1,10 @@
 package api
 
 import (
-	"fmt"
+
+	"log"
+	"mahajodi/dashboard/handlers/auth"
+	"mahajodi/dashboard/handlers/count"
 
 	"net/http"
 
@@ -12,11 +15,19 @@ import (
 func routes() *chi.Mux {
 	r := chi.NewRouter()
 
+
+
 	//Uncomment this to dump all API requests
 	//r.Use(DumpRequest)
 
-	r.Route("/api/v1/", func(r chi.Router) {
-
+	r.Route("/api/v1/dashboard", func(r chi.Router) {
+    r.Get("/totalmembers", count.GetTotalMembers)
+		r.Get("/totalmale", count.GetTotalMales)
+		r.Get("/totalfemale", count.GetTotalFemales)
+		r.Get("/data-male", count.GetMales)
+		r.Get("/data-female", count.GetFemales)
+		r.Post("/login-with-mobile", auth.VerifyEmail)
+		r.Post("/login-with-mobile/verify-otp", auth.VerifyOtp)
 	})
 
 	//Deprecated old APIs
@@ -29,6 +40,8 @@ func routes() *chi.Mux {
 
 func StartServer(listenAddr string) {
 	r := routes()
-	fmt.Println("started server at:", listenAddr)
+
+	log.Println("server started at:", listenAddr)
+
 	logrus.Error(http.ListenAndServe(listenAddr, r))
 }
