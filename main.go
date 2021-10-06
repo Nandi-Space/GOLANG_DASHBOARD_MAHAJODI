@@ -5,6 +5,7 @@ import (
 	"Mahajodi_GOLANG_Dashboard/models"
 	"Mahajodi_GOLANG_Dashboard/store"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -15,10 +16,9 @@ import (
 
 func main() {
 
-	path := flag.String("c", "/etc/mahajodidashboard/config", "config file location")
+	path := flag.String("c", "/etc/mahajodi", "config file location")
 	writeToFile := flag.Bool("f", false, "write logs to file")
 	flag.Parse()
-
 	config := parseConfig(*path)
 	level, err := logrus.ParseLevel(config.Logging.Level)
 	if err != nil {
@@ -45,6 +45,7 @@ func parseConfig(path string) models.Config {
 	var config models.Config
 	absPath, err := filepath.Abs(path)
 	if err != nil {
+		fmt.Println(err)
 		panic("config file not found in " + filepath.Join(path))
 	}
 

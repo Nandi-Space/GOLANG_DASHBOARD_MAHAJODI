@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"Mahajodi_GOLANG_Dashboard/store"
+	"Mahajodi_GOLANG_Dashboard/utils"
 	"encoding/json"
-	"mahajodi/dashboard/store"
-	"mahajodi/dashboard/utils"
 	"net/http"
 	"strings"
 
@@ -23,27 +23,37 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//  checking if admin is present or not
-	isAdmin, err := store.DBState.IsPresent(req.Email)
+	id, isAdmin, err := store.DBState.IsPresent(req.Email)
+	//handling error
 	if err != nil {
 		logrus.Debug(err)
-		if isAdmin != true {
-			utils.ErrorResponse(w, "no admin with provided email", 404)
-			return
-		}
 		utils.ErrorResponse(w, "internal server error", 500)
 		return
 	}
+	//if admin is not present
+	if !isAdmin {
+		utils.ErrorResponse(w, "no admin with provided email", 404)
+		return
+	}
+
 	//Generating otp
 	otp := utils.GenerateOTP(6)
+	// Fetching admin data
+	admin, err := store.DBState.GetAdmin(id)
+	if err != nil {
+		logrus.Debug(err)
+		utils.ErrorResponse(w, "admin not found", 404)
+		return
+	}
 	//saving otp in DB
-	saveErr := store.DBState.SaveOTP(req.Email, otp)
+	saveErr := store.DBState.SaveOTP(admin.ID, otp)
 	if saveErr != nil {
 		logrus.Debug("error while saving otp: ", saveErr)
 		utils.JsonResponse(w, "error while saving otp", 500)
 		return
 	}
-	// sending otp over sms
-	otpErr := store.DBState.SendOTPAWS(req.Email, otp)
+	// sending otp over email
+	otpErr := store.DBState.SendOTP(admin.Email, admin.UserName, otp)
 	if otpErr != nil {
 		logrus.Debug("error while sending otp: ", otpErr)
 		utils.JsonResponse(w, "error while sending otp", 500)
@@ -59,7 +69,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 	//supposed to get request body in this format
 	var req struct {
 		Email string `json:"Email"`
-		OTP    string `json:"otp"`
+		OTP   string `json:"otp"`
 	}
 
 	// Populating req struct
@@ -68,8 +78,16 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, "invalid json data", 400)
 		return
 	}
+	//
+	//  checking if admin is present or not
+	id, _, err := store.DBState.IsPresent(req.Email)
+	if err != nil {
+		logrus.Debug(err)
+		utils.ErrorResponse(w, "internal server error", 500)
+		return
+	}
 	// Fetching admin data
-	admin, err := store.DBState.GetAdmin(req.Email)
+	admin, err := store.DBState.GetAdmin(id)
 	if err != nil {
 		logrus.Debug(err)
 		utils.ErrorResponse(w, "admin not found", 404)
@@ -91,7 +109,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Once verified remove the otp from DB
-	removeErr := store.DBState.DeleteOTP(req.Email)
+	removeErr := store.DBState.DeleteOTP(admin.ID)
 	if removeErr != nil {
 		logrus.Debug("error while deleting otp: ", removeErr)
 		utils.ErrorResponse(w, "internal server error", 500)

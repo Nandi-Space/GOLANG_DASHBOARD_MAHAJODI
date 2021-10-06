@@ -1,6 +1,6 @@
 package store
 
-import "mahajodi/dashboard/models"
+import "Mahajodi_GOLANG_Dashboard/models"
 
 const (
 	//query for total users

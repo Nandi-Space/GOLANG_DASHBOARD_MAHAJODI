@@ -1,48 +1,48 @@
 package store
 
 import (
-	"mahajodi/dashboard/models"
+	"Mahajodi_GOLANG_Dashboard/models"
 )
 
 const (
 	//query check admin
-	queryCheckAdmin = `SELECT id FROM tbl_admin WHERE mobile=?`
+	queryCheckAdmin = `SELECT id FROM tbl_admin WHERE email=?`
 
 	//Query to get admin user using moile number
-	queryGetAdmin = `SELECT id,	mobile,	isVerified,	otp, FROM tbl_admin WHERE mobile=?`
+	queryGetAdmin = `SELECT id,	username, email, phone,	otp, FROM tbl_admin WHERE email=?`
 
 	//query save otp
-	querySaveOTP = `UPDATE tbl_admin SET otp=? WHERE mobile=?`
+	querySaveOTP = `UPDATE tbl_admin SET otp=? WHERE id=?`
 
 	//query emove otp
-	queryRemveOTP = `UPDATE tbl_admin SET otp="" WHERE mobile=?`
+	queryRemveOTP = `UPDATE tbl_admin SET otp="" WHERE id=?`
 )
 
-//IsPresent returns true if the mobile is pesent else returns false
-func (state *State) IsPresent(mobile string) (bool, error) {
+//IsPresent returns true if the phone is pesent else returns false
+func (state *State) IsPresent(email string) (int64, bool, error) {
 	var admin models.Admin
-	err := state.db.QueryRow(queryGetAdmin, mobile).Scan(&admin.ID)
+	err := state.db.QueryRow(queryGetAdmin, email).Scan(&admin.ID)
 	if err != nil {
-		return false, err
+		return 0, false, err
 	}
-	return true, nil
+	return admin.ID, true, nil
 }
 
-//GetAdmin returns admin based on mobile number provided
-func (state *State) GetAdmin(mobile string) (models.Admin, error) {
+//GetAdmin returns admin based on phone number provided
+func (state *State) GetAdmin(id int64) (models.Admin, error) {
 	var admin models.Admin
-	err := state.db.QueryRow(queryGetAdmin, mobile).Scan(&admin.ID, &admin.Mobile, &admin.IsVerified, &admin.OTP)
+	err := state.db.QueryRow(queryGetAdmin, id).Scan(&admin.ID, &admin.Phone, &admin.OTP)
 	return admin, err
 }
 
-//SaveOTP saves the OTP based on mobile number provided
-func (state *State) SaveOTP(mobile, otp string) error {
-	_, err := state.db.Exec(querySaveOTP, otp, mobile)
+//SaveOTP saves the OTP based on phone number provided
+func (state *State) SaveOTP(id int64, otp string) error {
+	_, err := state.db.Exec(querySaveOTP, otp, id)
 	return err
 }
 
 //DeleteOTP removes otp code
-func (state *State) DeleteOTP(mobile string) error {
-	_, err := state.db.Exec(queryRemveOTP, mobile)
+func (state *State) DeleteOTP(id int64) error {
+	_, err := state.db.Exec(queryRemveOTP, id)
 	return err
 }

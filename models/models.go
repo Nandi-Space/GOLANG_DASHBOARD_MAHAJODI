@@ -5,9 +5,9 @@ import (
 )
 
 type APIResponse struct {
-	Status  bool        `json:"status" omitempty`
-	Message bool        `json:"message" omitempty`
-	Body    interface{} `json:"body" omitempty`
+	Status  bool        `json:"status ,omitempty"`
+	Message bool        `json:"message, omitempty"`
+	Body    interface{} `json:"body, omitempty"`
 }
 
 type Config struct {

@@ -1,10 +1,10 @@
 package api
 
 import (
-
+	"Mahajodi_GOLANG_Dashboard/handlers/auth"
+	"Mahajodi_GOLANG_Dashboard/handlers/count"
+	"Mahajodi_GOLANG_Dashboard/handlers/users"
 	"log"
-	"mahajodi/dashboard/handlers/auth"
-	"mahajodi/dashboard/handlers/count"
 
 	"net/http"
 
@@ -15,17 +15,18 @@ import (
 func routes() *chi.Mux {
 	r := chi.NewRouter()
 
-
-
 	//Uncomment this to dump all API requests
 	//r.Use(DumpRequest)
 
 	r.Route("/api/v1/dashboard", func(r chi.Router) {
-    r.Get("/totalmembers", count.GetTotalMembers)
-		r.Get("/totalmale", count.GetTotalMales)
-		r.Get("/totalfemale", count.GetTotalFemales)
-		r.Get("/data-male", count.GetMales)
-		r.Get("/data-female", count.GetFemales)
+
+		r.Get("/totalmembers", Authentication(count.GetTotalMembers))
+		r.Get("/totalmale", Authentication(count.GetTotalMales))
+		r.Get("/totalfemale", Authentication(count.GetTotalFemales))
+
+		r.Get("/data-male", Authentication(users.GetMales))
+		r.Get("/data-female", Authentication(users.GetFemales))
+
 		r.Post("/login-with-mobile", auth.VerifyEmail)
 		r.Post("/login-with-mobile/verify-otp", auth.VerifyOtp)
 	})
