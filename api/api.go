@@ -27,8 +27,8 @@ func routes() *chi.Mux {
 		r.Get("/data-male", Authentication(users.GetMales))
 		r.Get("/data-female", Authentication(users.GetFemales))
 
-		r.Post("/login-with-mobile", auth.VerifyEmail)
-		r.Post("/login-with-mobile/verify-otp", auth.VerifyOtp)
+		r.Post("/login-with-email", auth.VerifyEmail)
+		r.Post("/login-with-email/verify-otp", auth.VerifyOtp)
 	})
 
 	//Deprecated old APIs
