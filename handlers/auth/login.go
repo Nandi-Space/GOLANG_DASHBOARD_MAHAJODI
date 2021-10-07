@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//VerifyMobile verifies if any admin is present with the provided mobile
+//VerifyEmail verifies if any admin is present with the provided email
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	//supposed to get request body in this format
 	var req struct {
@@ -23,7 +23,7 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//  checking if admin is present or not
-	id, isAdmin, err := store.DBState.IsPresent(req.Email)
+	isAdmin, err := store.DBState.IsPresent(req.Email)
 	//handling error
 	if err != nil {
 		logrus.Debug(err)
@@ -38,18 +38,18 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	//Generating otp
 	otp := utils.GenerateOTP(6)
-	// Fetching admin data
-	admin, err := store.DBState.GetAdmin(id)
-	if err != nil {
-		logrus.Debug(err)
-		utils.ErrorResponse(w, "admin not found", 404)
-		return
-	}
 	//saving otp in DB
-	saveErr := store.DBState.SaveOTP(admin.ID, otp)
+	saveErr := store.DBState.SaveOTP(req.Email, otp)
 	if saveErr != nil {
 		logrus.Debug("error while saving otp: ", saveErr)
 		utils.JsonResponse(w, "error while saving otp", 500)
+		return
+	}
+	// Fetching admin data
+	admin, err := store.DBState.GetAdmin(req.Email)
+	if err != nil {
+		logrus.Debug(err)
+		utils.ErrorResponse(w, "admin not found", 404)
 		return
 	}
 	// sending otp over email
@@ -78,16 +78,9 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, "invalid json data", 400)
 		return
 	}
-	//
-	//  checking if admin is present or not
-	id, _, err := store.DBState.IsPresent(req.Email)
-	if err != nil {
-		logrus.Debug(err)
-		utils.ErrorResponse(w, "internal server error", 500)
-		return
-	}
+	
 	// Fetching admin data
-	admin, err := store.DBState.GetAdmin(id)
+	admin, err := store.DBState.GetAdmin(req.Email)
 	if err != nil {
 		logrus.Debug(err)
 		utils.ErrorResponse(w, "admin not found", 404)
@@ -109,7 +102,7 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Once verified remove the otp from DB
-	removeErr := store.DBState.DeleteOTP(admin.ID)
+	removeErr := store.DBState.DeleteOTP(admin.Email)
 	if removeErr != nil {
 		logrus.Debug("error while deleting otp: ", removeErr)
 		utils.ErrorResponse(w, "internal server error", 500)

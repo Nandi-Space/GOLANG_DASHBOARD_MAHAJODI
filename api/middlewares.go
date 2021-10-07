@@ -25,8 +25,7 @@ func Authentication(next http.HandlerFunc) http.HandlerFunc {
 			utils.ErrorResponse(w, "failed to verify token", 401)
 			return
 		}
-
-		admin, err := store.DBState.GetAdmin(parsedToken.UserID)
+		admin, err := store.DBState.GetAdmin2(parsedToken.UserID)
 		if err != nil {
 			logrus.Error("invalid admin id in jwt token, ", err)
 			utils.ErrorResponse(w, "invalid admin_id", 500)

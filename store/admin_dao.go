@@ -2,47 +2,57 @@ package store
 
 import (
 	"Mahajodi_GOLANG_Dashboard/models"
+	"log"
 )
 
 const (
 	//query check admin
-	queryCheckAdmin = `SELECT id FROM tbl_admin WHERE email=?`
+	queryCheckAdmin = `SELECT id FROM tbl_admin WHERE email=?;`
 
 	//Query to get admin user using moile number
-	queryGetAdmin = `SELECT id,	username, email, phone,	otp, FROM tbl_admin WHERE email=?`
+	queryGetAdmin = `SELECT id,	username, email, otp FROM tbl_admin WHERE email=?;`
+	queryGetAdmin2 = `SELECT id,	username, email, otp FROM tbl_admin WHERE id=?;`
 
 	//query save otp
-	querySaveOTP = `UPDATE tbl_admin SET otp=? WHERE id=?`
+	querySaveOTP = `UPDATE tbl_admin SET otp=? WHERE email=?;`
 
 	//query emove otp
-	queryRemveOTP = `UPDATE tbl_admin SET otp="" WHERE id=?`
+	queryRemveOTP = `UPDATE tbl_admin SET otp="" WHERE email=?;`
 )
 
-//IsPresent returns true if the phone is pesent else returns false
-func (state *State) IsPresent(email string) (int64, bool, error) {
-	var admin models.Admin
-	err := state.db.QueryRow(queryGetAdmin, email).Scan(&admin.ID)
+//IsPresent returns true if the email is pesent else returns false
+func (state *State) IsPresent(email string) ( bool, error) {
+	
+	_,err := state.db.Exec(queryCheckAdmin, email)
 	if err != nil {
-		return 0, false, err
+		log.Println(err)
+		return  false, err
 	}
-	return admin.ID, true, nil
+	return true, nil
 }
-
-//GetAdmin returns admin based on phone number provided
-func (state *State) GetAdmin(id int64) (models.Admin, error) {
+//GetAdmin returns admin based on id provided
+func (state *State) GetAdmin2(id int64) (models.Admin, error) {
 	var admin models.Admin
-	err := state.db.QueryRow(queryGetAdmin, id).Scan(&admin.ID, &admin.Phone, &admin.OTP)
+	err := state.db.QueryRow(queryGetAdmin2, id).Scan(&admin.ID, &admin.UserName,&admin.Email, &admin.OTP)
 	return admin, err
 }
 
-//SaveOTP saves the OTP based on phone number provided
-func (state *State) SaveOTP(id int64, otp string) error {
-	_, err := state.db.Exec(querySaveOTP, otp, id)
+
+//GetAdmin returns admin based on email provided
+func (state *State) GetAdmin(email string) (models.Admin, error) {
+	var admin models.Admin
+	err := state.db.QueryRow(queryGetAdmin, email).Scan(&admin.ID, &admin.UserName,&admin.Email, &admin.OTP)
+	return admin, err
+}
+
+//SaveOTP saves the OTP based on email provided
+func (state *State) SaveOTP(email string, otp string) error {
+	_, err := state.db.Exec(querySaveOTP, otp, email)
 	return err
 }
 
 //DeleteOTP removes otp code
-func (state *State) DeleteOTP(id int64) error {
-	_, err := state.db.Exec(queryRemveOTP, id)
+func (state *State) DeleteOTP(email string) error {
+	_, err := state.db.Exec(queryRemveOTP, email)
 	return err
 }
