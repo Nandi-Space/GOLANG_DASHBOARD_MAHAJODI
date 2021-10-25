@@ -7,10 +7,10 @@ const (
 	queryTotalMembers = `SELECT COUNT(*) FROM tbl_user;`
 
 	//query for total male users
-	queryTotalMales = `SELECT COUNT(*) FROM detail_profile WHERE gender="Male";`
+	queryTotalMales = `SELECT COUNT(*) FROM tbl_user LEFT JOIN detail_profile ON (detail_profile.user_id = tbl_user.id) WHERE gender = "Male";`
 
 	//query for total female users
-	queryTotalFemales = `SELECT COUNT(*) FROM detail_profile WHERE gender="Female";`
+	queryTotalFemales = `SELECT COUNT(*) FROM tbl_user LEFT JOIN detail_profile ON (detail_profile.user_id = tbl_user.id) WHERE gender = "Female";`
 
 	//query for males
 	queryGetMales = `SELECT tbl_user.id,
