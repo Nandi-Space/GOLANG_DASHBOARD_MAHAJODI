@@ -98,6 +98,13 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, "admin not found", 404)
 		return
 	}
+	
+	//if otp in nill
+	if req.OTP == ""{
+		utils.ErrorResponse(w,"Please enter otp",404)
+		return
+	}
+
 	//comparing otp from request and DB
 	result := strings.Compare(req.OTP, admin.OTP)
 	if result != 0 {
