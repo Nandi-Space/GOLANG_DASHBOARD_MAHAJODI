@@ -10,6 +10,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//respone after login
+type loginResponse struct{
+	AccessToken string `json:"access_token"`
+	Admin adminResponse `json:"admin"`
+}
+//adminResponse
+type adminResponse struct{
+	ID       int64  `json:"id"`
+	UserName string `json:"username"`
+	Email    string `json:"email"`
+}
+
 //VerifyEmail verifies if any admin is present with the provided email
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	//supposed to get request body in this format
@@ -108,6 +120,16 @@ func VerifyOtp(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, "internal server error", 500)
 		return
 	}
+	//preparing response
+	adminRsp := adminResponse{
+		ID: admin.ID,
+		UserName: admin.UserName,
+		Email: admin.Email,
+	}
+	rsp:= loginResponse{
+		AccessToken: token,
+		Admin: adminRsp,
+	}
 	//sending response
-	utils.JsonResponse(w, token, 200)
+	utils.JsonResponse(w, rsp, 200)
 }
