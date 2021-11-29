@@ -26,6 +26,10 @@ func routes() *chi.Mux {
 
 		r.Get("/data-male", Authentication(users.GetMales))
 		r.Get("/data-female", Authentication(users.GetFemales))
+		r.Get("/data-free-users", Authentication(users.GetFreeUsers))
+		r.Get("/data-basic3months-users", Authentication(users.GetBasic3MonthsUsers))
+		r.Get("/data-basic6months-users", Authentication(users.GetBasic6MonthsUsers))
+		r.Get("/data-premium6months-users", Authentication(users.GetPremium6MonthsUsers))
 
 		r.Post("/login-with-email", auth.VerifyEmail)
 		r.Post("/login-with-email/verify-otp", auth.VerifyOtp)
