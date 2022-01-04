@@ -1,6 +1,9 @@
 package store
 
-import "Mahajodi_GOLANG_Dashboard/models"
+import (
+	"Mahajodi_GOLANG_Dashboard/models"
+	"time"
+)
 
 const (
 	//query for total users
@@ -44,6 +47,23 @@ const (
 	LEFT JOIN detail_profile ON
 	(detail_profile.user_id = tbl_user.id)
 	WHERE gender = "Female"
+	ORDER BY created_at DESC;`
+
+	//query for newUsers
+	queryGetUsers = `SELECT tbl_user.id,
+	tbl_user.name,
+	detail_profile.community,
+	detail_profile.date_of_birth,
+	detail_profile.marital_status,
+	detail_profile.country,
+	detail_profile.district,
+	detail_profile.education,
+	detail_profile.religion,
+	detail_profile.profession
+	FROM tbl_user
+	LEFT JOIN detail_profile ON
+	(detail_profile.user_id = tbl_user.id)
+	WHERE created_at >= ?
 	ORDER BY created_at DESC;`
 )
 
@@ -109,6 +129,27 @@ func (state *State) GetFemales() ([]models.User, error) {
 	for rows.Next() {
 		var user models.User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Community, &user.DOB, &user.MaritalStatus, &user.Country, &user.District, &user.Eduction, &user.Religion, &user.Profession); err != nil {
+			return nil, err
+		}
+		results = append(results, user)
+	}
+	return results, nil
+}
+
+//GetNewUsers retrieves data of new users
+func (state *State) GetNewUsers() ([]models.User, error) {
+	now := time.Now()
+	sevenday := now.Add(-168 * time.Hour)
+	stmt, err := state.db.Query(queryGetUsers, sevenday)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	results := make([]models.User, 0)
+	for stmt.Next() {
+		var user models.User
+		if err := stmt.Scan(&user.ID, &user.Name, &user.Community, &user.DOB, &user.MaritalStatus, &user.Country, &user.District, &user.Eduction, &user.Religion, &user.Profession); err != nil {
 			return nil, err
 		}
 		results = append(results, user)

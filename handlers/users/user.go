@@ -31,3 +31,15 @@ func GetFemales(w http.ResponseWriter, r *http.Request) {
 
 	utils.JsonResponse(w, femaleUsers, 200)
 }
+
+//Get New Users  handles the female users data
+func GetNewUsers(w http.ResponseWriter, r *http.Request) {
+
+	newUsers, err := store.DBState.GetNewUsers()
+	if err != nil {
+		logrus.Error(err)
+		utils.ErrorResponse(w, "internal server error", 500)
+	}
+
+	utils.JsonResponse(w, newUsers, 200)
+}

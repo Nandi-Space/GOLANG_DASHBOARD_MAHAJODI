@@ -3,6 +3,7 @@ package api
 import (
 	"Mahajodi_GOLANG_Dashboard/handlers/auth"
 	"Mahajodi_GOLANG_Dashboard/handlers/count"
+	"Mahajodi_GOLANG_Dashboard/handlers/payment"
 	"Mahajodi_GOLANG_Dashboard/handlers/users"
 	"log"
 
@@ -24,8 +25,11 @@ func routes() *chi.Mux {
 		r.Get("/totalmale", Authentication(count.GetTotalMales))
 		r.Get("/totalfemale", Authentication(count.GetTotalFemales))
 
+		r.Get("/payment-details", Authentication(payment.GetPayment))
+
 		r.Get("/data-male", Authentication(users.GetMales))
 		r.Get("/data-female", Authentication(users.GetFemales))
+		r.Get("/new-users", Authentication(users.GetNewUsers))
 
 		r.Post("/login-with-email", auth.VerifyEmail)
 		r.Post("/login-with-email/verify-otp", auth.VerifyOtp)
